@@ -1,0 +1,11 @@
+Act as a data visualization expert and data anlalyst with experities in RNAseq analysis.
+I am providing you an output from reademption pipeline which is result of DESeq I would like you to create an app using streamlit in python with following features:
+1. Streamlit application which can ask user to provide the sheet from reademption output.
+2. Ask user to select filter criteria for padj and log2FoldChange for  upregulated and  downregulated genes and set base criteria of +1 and -1.
+3. Then create a volacano plot which is publication ready but interactive using plotly in python.
+4. Add options to save the filtered data and volcano plot (png, svg file).\
+5. Also add options to change color of data points in plot.
+6. Take genes names and locus tags from the file column named Attributes to use in plots when we hover mouse.
+7. Create a python venv inside the folder as virtual environment.
+8. create a readme.md file with instruction to use this application.
+9. Suggest which features can be added.
