@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
+import json
 
 # Page configuration with theme toggle
 st.set_page_config(
@@ -171,7 +172,8 @@ with st.sidebar:
     
     st.markdown("---")
     st.subheader("💾 Export Settings")
-    dpi_value = st.selectbox("DPI for Image Export", [150, 300, 600, 900], index=1)
+    # Remove DPI setting since we're not exporting raster images
+    export_format = st.selectbox("Export Format", ["HTML (Interactive)", "JSON (Data)"])
 
 # Main content
 if uploaded_file is not None:
@@ -221,23 +223,18 @@ if uploaded_file is not None:
                                             plot_width, plot_height)
             st.plotly_chart(fig_volcano, use_container_width=True)
             
-            # Download options for volcano plot
-            col1, col2, col3 = st.columns(3)
+            # Download options for volcano plot (HTML only)
+            col1, col2 = st.columns(2)
             with col1:
-                img_png = fig_volcano.to_image(format="png", width=plot_width, height=plot_height, scale=dpi_value/100)
-                st.download_button("📥 Download PNG", data=img_png, 
-                                 file_name=f"volcano_plot_{dpi_value}dpi.png", 
-                                 mime="image/png")
-            with col2:
-                img_svg = fig_volcano.to_image(format="svg", width=plot_width, height=plot_height)
-                st.download_button("📥 Download SVG", data=img_svg, 
-                                 file_name="volcano_plot.svg", 
-                                 mime="image/svg+xml")
-            with col3:
                 html_str = fig_volcano.to_html()
-                st.download_button("📥 Download HTML", data=html_str, 
+                st.download_button("📥 Download HTML (Interactive)", data=html_str, 
                                  file_name="volcano_plot.html", 
                                  mime="text/html")
+            with col2:
+                json_str = fig_volcano.to_json()
+                st.download_button("📥 Download JSON (Data)", data=json_str, 
+                                 file_name="volcano_plot.json", 
+                                 mime="application/json")
         
         with tab2:
             st.subheader("MA Plot")
@@ -259,11 +256,11 @@ if uploaded_file is not None:
                 
                 st.plotly_chart(fig_ma, use_container_width=True)
                 
-                # Download MA plot
-                img_png = fig_ma.to_image(format="png", width=plot_width, height=plot_height, scale=dpi_value/100)
-                st.download_button("📥 Download MA Plot (PNG)", data=img_png, 
-                                 file_name=f"ma_plot_{dpi_value}dpi.png", 
-                                 mime="image/png")
+                # Download MA plot (HTML only)
+                html_str = fig_ma.to_html()
+                st.download_button("📥 Download MA Plot (HTML)", data=html_str, 
+                                 file_name="ma_plot.html", 
+                                 mime="text/html")
         
         with tab3:
             st.subheader("Box Plot: Log2 Fold Change Distribution")
@@ -286,10 +283,10 @@ if uploaded_file is not None:
             )
             st.plotly_chart(fig_box, use_container_width=True)
             
-            img_png = fig_box.to_image(format="png", width=plot_width, height=plot_height, scale=dpi_value/100)
-            st.download_button("📥 Download Box Plot (PNG)", data=img_png, 
-                             file_name=f"boxplot_{dpi_value}dpi.png", 
-                             mime="image/png")
+            html_str = fig_box.to_html()
+            st.download_button("📥 Download Box Plot (HTML)", data=html_str, 
+                             file_name="boxplot.html", 
+                             mime="text/html")
         
         with tab4:
             st.subheader("Heatmap: Top Differentially Expressed Genes")
@@ -315,13 +312,14 @@ if uploaded_file is not None:
                 plt.tight_layout()
                 st.pyplot(fig)
                 
-                # Save heatmap
+                # Save heatmap with matplotlib (works without Kaleido)
                 buf = BytesIO()
-                fig.savefig(buf, format='png', dpi=dpi_value, bbox_inches='tight')
+                fig.savefig(buf, format='png', dpi=300, bbox_inches='tight')
                 buf.seek(0)
                 st.download_button("📥 Download Heatmap (PNG)", data=buf, 
-                                 file_name=f"heatmap_{dpi_value}dpi.png", 
+                                 file_name="heatmap.png", 
                                  mime="image/png")
+                plt.close(fig)
             else:
                 st.warning("No count columns found in the dataset.")
         
@@ -356,11 +354,12 @@ if uploaded_file is not None:
             ax_qq.set_xlabel("Theoretical Quantiles")
             ax_qq.set_ylabel("Sample Quantiles")
             st.pyplot(fig_qq)
+            plt.close(fig_qq)
             
-            img_png = fig_pval.to_image(format="png", width=plot_width, height=plot_height, scale=dpi_value/100)
-            st.download_button("📥 Download P-value Distribution (PNG)", data=img_png, 
-                             file_name=f"pvalue_dist_{dpi_value}dpi.png", 
-                             mime="image/png")
+            html_str = fig_pval.to_html()
+            st.download_button("📥 Download P-value Distribution (HTML)", data=html_str, 
+                             file_name="pvalue_dist.html", 
+                             mime="text/html")
         
         with tab6:
             st.subheader("Filtered Data Table")
